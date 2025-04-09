@@ -1,0 +1,36 @@
+# Build directories
+build/
+bin/
+lib/
+
+# Binaries and libraries
+*.dll
+*.so
+*.dylib
+*.a
+*.exe
+*.lib
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.ninja
+install_manifest.txt
+
+# Tests
+tests/*.exe
+tests/*.dll
+
+*.user
+*.sln
+*.vcxproj*
+x64/
+Win32/
