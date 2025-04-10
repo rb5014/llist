@@ -34,6 +34,7 @@ jobs:
           base-devel
           mingw-w64-ucrt-x86_64-toolchain
           cmake
+          ninja
           ccache
 
     # 3. Fallback Setup (if primary fails)
@@ -46,6 +47,7 @@ jobs:
           base-devel
           mingw-w64-ucrt-x86_64-toolchain
           cmake
+          ninja
           ccache
 
     # 4. Build with CCache
@@ -56,11 +58,11 @@ jobs:
       run: |
         mkdir -p build
         cd build
-        cmake -G "MinGW Makefiles" .. \
+        cmake -G "Ninja" .. \
           -DBUILD_TESTING=ON \
           -DCMAKE_C_STANDARD=11 \
           -DCMAKE_C_COMPILER_LAUNCHER=ccache
-        cmake --build . -- -j 2  # Limited parallelism for stability
+        cmake --build . -- -j 2
 
     # 5. Tests
     - name: Run Tests
