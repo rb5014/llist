@@ -1,0 +1,10 @@
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/llistTargets.cmake")
+
+check_required_components(llist)
+
+if(MSVC)
+    # Disable secure warnings that are too noisy
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+endif()
