@@ -1,0 +1,29 @@
+name: Code Quality
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-tidy valgrind
+        
+    - name: Run Analysis
+      run: |
+        mkdir build
+        cd build
+        cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_C_STANDARD=11
+        run-clang-tidy -checks='-*,clang-analyzer-*,bugprone-*,performance-*' -warnings-as-errors='*' -p build/
+        
+    - name: Memory Check
+      run: |
+        cd build
+        valgrind --leak-check=full --error-exitcode=1 ./tests/test_llist
