@@ -16,19 +16,75 @@
 
 ## 🚀 Installation  
 
+### Prerequisites
+- **CMake 3.10+**
+- **C11 compiler** (GCC, Clang, MSVC)
+- **Threading library** (pthreads on Unix)
+
+---
+
 ### Linux/macOS  
 ```bash
-git clone https://github.com/rb5014/llist.git  
-cd llist && mkdir build && cd build  
-cmake .. && sudo make install  
+git clone https://github.com/rb5014/llist.git
+cd llist
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release  # or Debug
+make
+sudo make install  # Default: /usr/local
 ```
 
-### Windows (MinGW)  
+### Windows
+
+#### MinGW
 ```powershell
-git clone https://github.com/rb5014/llist.git  
-cd llist  
-cmake -B build -G "MinGW Makefiles"  
-cmake --build build --target install  
+git clone https://github.com/rb5014/llist.git
+cd llist
+cmake -B build -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release # or Debug
+cmake --build build
+cmake --install build  # Admin needed for default install
+```
+
+#### MSVC (Visual Studio)
+```powershell
+git clone https://github.com/rb5014/llist.git
+cd llist
+cmake -B build -G "Visual Studio 17 2022" -A x64
+cmake --build build --config Release # or Debug
+cmake --install build
+```
+
+---
+
+## 🔧 Integration  
+
+### CMake Projects
+
+#### Add to your project's CMakeLists.txt:
+```cmake
+find_package(llist REQUIRED)
+target_link_libraries(your_project PRIVATE llist)
+```
+
+#### Custom install path
+```bash
+cmake .. -DCMAKE_INSTALL_PREFIX=/custom/path
+```
+
+### Manual Linking
+```bash
+gcc your_app.c -o app -lllist -L/path/to/llist/lib
+```
+
+---
+
+## 🔍 Verify Installation
+```bash
+# Unix
+ls /usr/local/include/llist.h
+ls /usr/local/lib/libllist.*
+
+# Windows
+dir "C:\Program Files\llist\bin\llist.dll"
 ```
 
 ---
@@ -107,21 +163,6 @@ int compare_nodes(llist_node_t a, llist_node_t b, void *arg) {
     return *(int*)a - *(int*)b; 
 }
 llist_sort(list, compare_nodes, NULL, SORT_LIST_ASC);
-```
-
----
-
-## 🔧 Integration  
-
-### CMake Projects  
-```cmake
-find_package(llist REQUIRED)
-target_link_libraries(your_project PRIVATE llist)
-```
-
-### Manual Linking  
-```bash
-gcc your_app.c -o app -lllist -L/path/to/llist/lib
 ```
 
 ---
