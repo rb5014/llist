@@ -9,33 +9,44 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    # 1. Setup MSYS2 only
+    # 1. Setup MSYS2 with UCRT64 toolchain
     - name: Setup MSYS2
       uses: msys2/setup-msys2@v2
+      id: setup-msys2
       with:
+        msystem: UCRT64
         update: true
         install: >-
           base-devel
           mingw-w64-ucrt-x86_64-toolchain
           cmake
+          ninja
           ccache
 
-    # 2. Build using native Ninja + MSYS2 tools
+    # 2. Configure environment
+    - name: Setup build environment
+      shell: pwsh
+      run: |
+        # Add MSYS2 to PATH
+        $msysPath = "C:\msys64\ucrt64\bin;C:\msys64\usr\bin"
+        $env:PATH = "$msysPath;$env:PATH"
+        
+        # Verify tools
+        gcc --version
+        g++ --version
+        ninja --version
+        cmake --version
+
+    # 3. Build
     - name: Configure and Build
       shell: pwsh
-      env:
-        CC: 'C:\msys64\ucrt64\bin\gcc.exe'
-        CXX: 'C:\msys64\ucrt64\bin\g++.exe'
       run: |
-        # Verify tools
-        & "C:\msys64\ucrt64\bin\gcc.exe" --version
-        ninja --version
-        
-        mkdir build -Force
+        mkdir -p build
         cd build
         cmake .. -G "Ninja" `
-          -DCMAKE_C_COMPILER="$env:CC" `
-          -DCMAKE_CXX_COMPILER="$env:CXX"
+          -DCMAKE_C_COMPILER=gcc `
+          -DCMAKE_CXX_COMPILER=g++ `
+          -DCMAKE_MAKE_PROGRAM=ninja
         cmake --build .
 
     - name: Run Tests
