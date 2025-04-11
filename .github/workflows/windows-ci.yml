@@ -9,73 +9,38 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    # 1. Cache Setup
-    - name: Cache MSYS2 and build
-      uses: actions/cache@v3
-      id: ci-cache
-      with:
-        path: |
-          C:\msys64
-          build
-          C:\Users\runneradmin\.cache\ccache
-        key: ${{ runner.os }}-msys2-${{ hashFiles('**/CMakeLists.txt') }}-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-msys2-${{ hashFiles('**/CMakeLists.txt') }}
-          ${{ runner.os }}-msys2-
-
-    # 2. Primary MSYS2 Setup (with cache-aware update)
-    - name: Setup MSYS2 (Primary Attempt)
-      uses: msys2/setup-msys2@v2
-      id: msys2-setup
-      continue-on-error: true  # Allows fallback to proceed
-      with:
-        update: ${{ !steps.ci-cache.outputs.cache-hit }}  # Only update if no cache
-        install: >-
-          base-devel
-          mingw-w64-ucrt-x86_64-toolchain
-          cmake
-          ninja
-          ccache
-
-    # 3. Fallback Setup (if primary fails)
-    - name: Setup MSYS2 (Fallback)
-      if: steps.msys2-setup.outcome == 'failure'
-      uses: msys2/setup-msys2@v2
-      with:
-        update: true  # Force fresh update
-        install: >-
-          base-devel
-          mingw-w64-ucrt-x86_64-toolchain
-          cmake
-          ninja
-          ccache
-
-    # Critical fix: Set up environment variables
-    - name: Configure environment
+    # 1. Install Ninja properly (native Windows version)
+    - name: Install Ninja
       shell: pwsh
       run: |
-        # Add MSYS2 binaries to PATH
-        $env:Path = "C:\msys64\ucrt64\bin;C:\msys64\usr\bin;$env:Path"
-        # Verify tools
-        gcc --version
-        ninja --version
-        cmake --version
+        choco install ninja -y
+        $env:Path += ";C:\ProgramData\chocolatey\bin"
 
-    # 4. Build with CCache
+    # 2. Setup MSYS2 (unchanged)
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        update: true
+        install: >-
+          base-devel
+          mingw-w64-ucrt-x86_64-toolchain
+          cmake
+          ccache
+
+    # 3. Build using native Ninja + MSYS2 tools
     - name: Configure and Build
       shell: pwsh
       env:
-        CC: gcc
-        CXX: g++
-        CCACHE_DIR: C:\Users\runneradmin\.cache\ccache
+        CC: 'C:\msys64\ucrt64\bin\gcc.exe'
+        CXX: 'C:\msys64\ucrt64\bin\g++.exe'
       run: |
         mkdir build
         cd build
         cmake .. -G "Ninja" `
-          -DCMAKE_C_COMPILER=gcc `
-          -DCMAKE_CXX_COMPILER=g++ `
+          -DCMAKE_C_COMPILER="$env:CC" `
+          -DCMAKE_CXX_COMPILER="$env:CXX" `
           -DCMAKE_MAKE_PROGRAM=ninja
-        cmake --build .
+        ninja
         
     - name: Run Tests
       shell: msys2 {0}
