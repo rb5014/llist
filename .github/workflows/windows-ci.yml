@@ -9,14 +9,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    # 1. Install native Ninja (faster than MSYS2 version)
-    - name: Install Ninja
-      shell: pwsh
-      run: |
-        choco install ninja -y
-        $env:Path = "C:\ProgramData\chocolatey\bin;$env:Path"
-
-    # 2. Setup MSYS2 with UCRT64 toolchain
+    # 1. Setup MSYS2 only
     - name: Setup MSYS2
       uses: msys2/setup-msys2@v2
       with:
@@ -27,26 +20,23 @@ jobs:
           cmake
           ccache
 
-    # 3. Build with explicit paths
+    # 2. Build using native Ninja + MSYS2 tools
     - name: Configure and Build
       shell: pwsh
       env:
         CC: 'C:\msys64\ucrt64\bin\gcc.exe'
         CXX: 'C:\msys64\ucrt64\bin\g++.exe'
-        PATH: 'C:\msys64\ucrt64\bin;C:\ProgramData\chocolatey\bin;$env:PATH'
       run: |
-        # Verify tools exist
-        Test-Path $env:CC
-        Test-Path $env:CXX
+        # Verify tools
+        & "C:\msys64\ucrt64\bin\gcc.exe" --version
         ninja --version
         
         mkdir build -Force
         cd build
         cmake .. -G "Ninja" `
           -DCMAKE_C_COMPILER="$env:CC" `
-          -DCMAKE_CXX_COMPILER="$env:CXX" `
-          -DCMAKE_MAKE_PROGRAM="ninja"
-        ninja
+          -DCMAKE_CXX_COMPILER="$env:CXX"
+        cmake --build .
 
     - name: Run Tests
       shell: pwsh
