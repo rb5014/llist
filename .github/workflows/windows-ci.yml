@@ -22,26 +22,27 @@ jobs:
           ninja
           ccache
 
-    # 2. Build using native Windows Ninja + MSYS2 tools
+    # 2. Build using MSYS2 shell context
     - name: Configure and Build
-      shell: pwsh
+      shell: msys2 {0}  # Critical change - use msys2 shell
       env:
-        PATH: 'C:\msys64\ucrt64\bin;C:\Program Files\CMake\bin;$env:PATH'
+        CCACHE_DIR: /c/Users/runneradmin/.cache/ccache
       run: |
         # Verify tools
         gcc --version
+        g++ --version
         ninja --version
         
-        mkdir build -Force
+        mkdir -p build
         cd build
-        cmake .. -G "Ninja" `
-          -DCMAKE_C_COMPILER="C:/msys64/ucrt64/bin/gcc.exe" `
-          -DCMAKE_CXX_COMPILER="C:/msys64/ucrt64/bin/g++.exe" `
-          -DCMAKE_MAKE_PROGRAM="ninja"
+        cmake .. -G "Ninja" \
+          -DCMAKE_C_COMPILER=gcc \
+          -DCMAKE_CXX_COMPILER=g++ \
+          -DCMAKE_MAKE_PROGRAM=ninja
         ninja
 
     - name: Run Tests
-      shell: pwsh
+      shell: msys2 {0}
       run: |
         cd build
         ctest --output-on-failure
