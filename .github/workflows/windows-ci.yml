@@ -41,8 +41,21 @@ jobs:
           -DCMAKE_MAKE_PROGRAM=ninja
         ninja
 
+    - name: Copy DLL for tests
+      shell: msys2 {0}
+      run: |
+        cp bin/llist.dll tests/
+
+    - name: Debug Test Environment
+      shell: msys2 {0}
+      run: |
+        cd build
+        ldd tests/test_llist  # Check shared libs on Linux
+        ls -la bin/           # Verify DLL exists
+        ./tests/test_llist    # Run directly for more output
+    
     - name: Run Tests
       shell: msys2 {0}
       run: |
         cd build
-        ctest --output-on-failure
+         ctest --output-on-failure --verbose
