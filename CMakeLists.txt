@@ -1,4 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
+
+# Platform detection
+if(WIN32)
+  set(CMAKE_GENERATOR "Ninja" CACHE INTERNAL "")
+endif()
+
+# Project settings
 project(llist
     LANGUAGES C
     VERSION 1.0.0  # Added version metadata
@@ -6,40 +13,29 @@ project(llist
 )
 
 # Set C standard and warnings
-set(CMAKE_C_STANDARD 23)
+set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 
-
-if(MSVC)
-    add_compile_options(/W4 /WX)
-else()
-    add_compile_options(-Wall -Wextra -Werror -pedantic)
-endif()
-
 # Platform-specific settings
 if(WIN32)
-    add_compile_definitions(BUILDING_DLL LLIST_EXPORTS)
-    
-    # Only set MSYS2 paths if they exist
-    if(EXISTS "C:/msys64/ucrt64/bin/gcc.exe")
-        set(CMAKE_C_COMPILER "C:/msys64/ucrt64/bin/gcc.exe")
-        set(CMAKE_CXX_COMPILER "C:/msys64/ucrt64/bin/g++.exe")
-        set(CMAKE_MAKE_PROGRAM "C:/msys64/ucrt64/bin/mingw32-make.exe")
-    endif()
+  add_compile_definitions(BUILDING_DLL LLIST_EXPORTS)
+  find_program(CMAKE_MAKE_PROGRAM NAMES ninja ninja-build make mingw32-make)
 else()
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
-    find_package(Threads REQUIRED)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+  find_package(Threads REQUIRED)
 endif()
+
+# Warnings
+if(MSVC)
+  add_compile_options(/W4 /WX)
+else()
+  add_compile_options(-Wall -Wextra -Werror -pedantic)
+endif()
+
 
 # Library target
 add_library(llist SHARED src/llist.c)
-
-if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-    target_compile_options(llist PRIVATE -pedantic-errors -Wall -Wextra)
-    # Enable latest standard features
-    target_compile_options(llist PRIVATE $<$<VERSION_GREATER_EQUAL:CMAKE_C_COMPILER_VERSION,12.0>:-std=c17>)
-endif()
 
 # Modern target-based include directories
 target_include_directories(llist

@@ -1,7 +1,9 @@
 # llist - Lightweight Linked List Library  
 *"Simple, efficient, and thread-safe linked list implementation in C"*  
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/rb5014/llist/build.yml?branch=main)](https://github.com/rb5014/llist/actions)  
+[![Windows CI](https://github.com/yourusername/llist/actions/workflows/windows-ci.yml/badge.svg)](https://github.com/yourusername/llist/actions/workflows/windows-ci.yml)
+[![Cross-Platform](https://github.com/yourusername/llist/actions/workflows/cross-platform.yml/badge.svg)](https://github.com/yourusername/llist/actions/workflows/cross-platform.yml)
+[![Static Analysis](https://github.com/yourusername/llist/actions/workflows/analysis.yml/badge.svg)](https://github.com/yourusername/llist/actions/workflows/analysis.yml) 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 ---

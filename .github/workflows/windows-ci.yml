@@ -20,10 +20,9 @@ jobs:
     - name: Configure and Build
       shell: pwsh
       run: |
-        $env:Path = "C:\msys64\ucrt64\bin;C:\msys64\usr\bin;$env:Path"
         mkdir build
         cd build
-        cmake -G "MinGW Makefiles" .. -DBUILD_TESTING=ON -DCMAKE_C_STANDARD=11
+        cmake ..
         cmake --build .
         
     - name: Run Tests
