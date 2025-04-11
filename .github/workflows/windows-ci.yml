@@ -50,15 +50,31 @@ jobs:
           ninja
           ccache
 
+    # Critical fix: Set up environment variables
+    - name: Configure environment
+      shell: pwsh
+      run: |
+        # Add MSYS2 binaries to PATH
+        $env:Path = "C:\msys64\ucrt64\bin;C:\msys64\usr\bin;$env:Path"
+        # Verify tools
+        gcc --version
+        ninja --version
+        cmake --version
+
     # 4. Build with CCache
     - name: Configure and Build
-      shell: msys2 {0}
+      shell: pwsh
       env:
+        CC: gcc
+        CXX: g++
         CCACHE_DIR: C:\Users\runneradmin\.cache\ccache
       run: |
-        mkdir -p build
+        mkdir build
         cd build
-        cmake ..
+        cmake .. -G "Ninja" `
+          -DCMAKE_C_COMPILER=gcc `
+          -DCMAKE_CXX_COMPILER=g++ `
+          -DCMAKE_MAKE_PROGRAM=ninja
         cmake --build .
         
     - name: Run Tests

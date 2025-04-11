@@ -5,6 +5,13 @@ if(WIN32)
   set(CMAKE_GENERATOR "Ninja" CACHE INTERNAL "")
 endif()
 
+# Help CMake find MSYS2 compilers on Windows
+if(WIN32 AND NOT DEFINED ENV{MSYSTEM})
+  if(EXISTS "C:/msys64/ucrt64/bin/gcc.exe")
+    list(APPEND CMAKE_PROGRAM_PATH "C:/msys64/ucrt64/bin")
+  endif()
+endif()
+
 # Project settings
 project(llist
     LANGUAGES C
